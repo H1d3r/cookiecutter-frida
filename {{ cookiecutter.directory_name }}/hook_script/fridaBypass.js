@@ -1,5 +1,6 @@
-// import { just_trust_me } from "./just_trust_me";
-
+/**
+ * All-in-one bypass root detect, frida detect, ssl unpinning, etc.
+ */
 
 var activityCls = Java.use("android.app.Activity");
 var bundleCls = Java.use("android.os.Bundle");
@@ -292,44 +293,6 @@ function getLoadedClass(clsName) {
             }
         }
     })
-}
-function hook_login() {
-    Java.perform(function () {
-        var loginCls = Java.use("com.yitong.financialservice.android.activity.login.C8159d");
-        getLoadedClass("com.yitong.financialservice.android.activity.login.C8159d");
-        loginCls.m6047a.implementation = function (args) {
-            console.log("login hooked!");
-            loginCls.m6047a(args);
-        }
-
-    })
-}
-
-
-function hook_click() {
-    Java.perform(function () {
-        var View = Java.use('android.view.View');
-        var MotionEvent = Java.use('android.view.MotionEvent');
-        View.onTouchEvent.overload('android.view.MotionEvent').implementation = function (event) {
-            var action = event.getAction();
-            if (action === MotionEvent.ACTION_DOWN) {
-                console.log('点击事件被触发');
-            }
-            return this.onTouchEvent(event);
-        };
-        var Button = Java.use('android.widget.Button');
-        Button.setOnClickListener.implementation = function (listener) {
-            console.log('按钮被点击了');
-            return this.setOnClickListener(listener);
-        };
-
-        var clickListener = Java.use("android.view.View$OnClickListener");
-        clickListener.onClick.implementation = function (view) {
-            console.log("onclick");
-            return this.onClick(view);
-        }
-
-    });
 }
 function BypassALL() {
     var BYPASSALL = true;
@@ -828,27 +791,6 @@ function keystore_gettype() {
     })
 }
 
-// var userInfoCls = Java.use("io.agora.rtc.models.UserInfo"); // class not found
-function hook_getUserInfo() {
-    Java.perform(function () {
-        var cls = Java.use("io.agora.rtc.internal.RtcEngine");
-        cls.getUserInfoByUid.overload("java.lang.Integer", "io.agora.rtc.models.UserInfo").implementation = function (id, userInfo) {
-            var uid = userInfo.uid;
-            var acc = userInfo.userAccount;
-            var ret = this.getUserInfoByUid(id, userInfo);
-            console.log("getUserInfo called with: " + id.toString() + "," + uid.toString() + "," + acc.toString() + "; ret: " + ret.toString());
-            return ret;
-        }
-        var cls2 = Java.use("io.agora.rtc.RtcEngine");
-        cls2.getUserInfoByUserAccount.overload("java.lang.String", "io.agora.rtc.models.UserInfo").implementation = function (id, userInfo) {
-            var uid = userInfo.uid;
-            var acc = userInfo.userAccount;
-            var ret = this.getUserInfoByUid(id, userInfo);
-            console.log("getUserInfo called with: " + id.toString() + "," + uid.toString() + "," + acc.toString() + "; ret: " + ret.toString());
-            return ret;
-        }
-    })
-}
 function SSLUnpinning() {
     var SSLUNPINNING = true;
     if (SSLUNPINNING) {
@@ -1383,98 +1325,6 @@ function hook_pthread_create() {
 
 // import { just_trust_me } from "./just_trust_me";
 
-function decryption() {
-    Java.perform(function () {
-        // 代理检测绕过
-        // var StringClass = Java.use("java.lang.String");
-
-        // StringClass.contains.implementation = function (subString) {
-        //     var result = this.contains(subString);
-        //     if (subString == "ZHEJIANG RURAL CREDIT UNION") {
-        //         result = true;
-        //     }
-        //     return result;
-        // };
-
-
-
-        let CryptoUtil = Java.use("com.yitong.mbank.util.security.CryptoUtil");
-        CryptoUtil["genRandomKey"].implementation = function () {
-            console.log(`CryptoUtil.genRandomKey is called`);
-            let result = this["genRandomKey"]();
-            result = "0000000000000000"    //固定密钥
-            return result;
-        };
-
-
-        //加密请求包
-        // let i = Java.choose("com.yitong.mbank.app.android.application.MyApplication$i", {
-
-        //     onMatch: function (instance) {
-
-        //         // str需要修改为请求内容
-        //         var str = '{"payload":{"template":"9W20160922000010","ORGAN_CODE":"999000","APP_VERS":"6.0.6","deviceNO":"7c33671e6ed0ee793783a5cec3da935a","APP_DEVICE_TYPE":"Android"},"header":{"_t":1706764264945,"service":"commonService/getContractUrl"}}'
-
-
-        //         // 固定密钥，无需修改
-        //         var str2 = '0000000000000000'
-        //         console.log("----------------------------------------------------")
-        //         console.log(`text=${str}`);
-        //         let result = instance["getEncryptString"](str, str2);
-        //         var replaceStr = result.replace(/\x1D/g, "<GS>")
-        //         console.log(`result=${replaceStr}`);
-        //     },
-        //     onComplete: function () {
-        //     }
-
-        // })
-
-
-
-        let s = Java.use("com.yitong.mbank.app.android.application.MyApplication$i");
-        s["getEncryptString"].implementation = function (str, str2) {
-            console.log("-------------------------")
-
-            console.log(`text before modify: str=${str}, str2=${str2}`);
-            var data = str
-            send({ from: "/http", payload: data, api_path: "request" }); //将dataStr发送到burpTracer.py
-            // <!-- 接收burp篡改后返回的数据 ↓-->
-            var op = recv("input", function (value) {
-                data = value.payload
-            });
-            op.wait();
-            let result = this["getEncryptString"](data, str2);
-            console.log(`result=${result}`);
-            return result;
-        };
-
-    });
-
-}
-function encrypt(str) {
-    Java.choose("com.yitong.mbank.app.android.application.MyApplication$i", {
-
-        onMatch: function (instance) {
-
-            // str需要修改为请求内容
-            // var str = '{"header":{"service":"ePaymentService/getPhoneInfo","method":"get","staticData":false,"options":[],"_t":"1709532671859"},"payload":{"PayerPhoneNo":"18879470686","PayerAcctNbr":"6230910199159586441"}}'
-            // var str = '{"payload":{"template":"9W20160922000010","ORGAN_CODE":"999000","APP_VERS":"6.0.6","deviceNO":"7c33671e6ed0ee793783a5cec3da935a","APP_DEVICE_TYPE":"Android"},"header":{"_t":1706764264945,"service":"commonService/getContractUrl"}}'
-
-
-            // 固定密钥，无需修改
-            var str2 = '0000000000000000'
-            console.log("----------------------------------------------------")
-            console.log(`text=${str}`);
-            let result = instance["getEncryptString"](str, str2);
-            var replaceStr = result.replace(/\x1D/g, "<GS>")
-            console.log("----------------------------------------")
-            console.log(`result=${replaceStr}`);
-        },
-        onComplete: function () {
-        }
-
-    })
-}
 function stackTraceHere(isLog) {
     var Exception = Java.use('java.lang.Exception');
     var Log = Java.use('android.util.Log');
@@ -1533,11 +1383,8 @@ if (myhook) {
 }
 var allhook = true;
 if (allhook) {
-    // BypassALL();
-    // setTimeout(SSLUnpinning, 5000)
-    // SSLUnpinning();
-    // decryption();
-    // just_trust_me();
+    BypassALL();
+    SSLUnpinning();
 }
 // hook_click();
 // hook_trustfactory();

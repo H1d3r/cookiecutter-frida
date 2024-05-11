@@ -1,0 +1,11 @@
+# useful commands
+python echoServer.py
+frida-trace -F -H {{ cookiecutter.frida_ip }}:{{ cookiecutter.frida_port }} -j "*Logs\!*/i"
+mitmproxy -s mitm.py --listen-host 0.0.0.0 -p {{ cookiecutter.mitm_frida_port }} --mode upstream:http://{{ cookiecutter.frida_ip }}:27080 -k
+mitmproxy -s mitm_http.py --listen-host 0.0.0.0 -p {{ cookiecutter.mitm_http_port }} --mode upstream:http://{{ cookiecutter.local_ip }}:8081 -k
+python burpTracer.py -s hook.js -r {{ cookiecutter.frida_ip }}:{{ cookiecutter.frida_port }} -n {{ cookiecutter.app_name }}
+python burpTracer.py -s hook.js -r {{ cookiecutter.frida_ip }}:{{ cookiecutter.frida_port }} -n {{ cookiecutter.app_name }} --rpc encrypt_rpc.js -a proxy.js
+frida -H {{ cookiecutter.frida_ip }}:{{ cookiecutter.frida_port }} -n {{ cookiecutter.app_name }} -l encrypt.js
+python client.py encrypt_backend.js
+python server.py encrypt_rpc.js
+frida -f {{ cookiecutter.package_name }} -H {{ cookiecutter.frida_ip }}:{{ cookiecutter.frida_port }}

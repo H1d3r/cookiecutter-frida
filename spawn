@@ -1,1 +1,0 @@
-frida -H 192.168.43.230:3333 -f com.rmjinhua -l $1 

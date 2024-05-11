@@ -1,9 +1,0 @@
-frida-trace -F -H 192.168.43.230:3333 -j "*SMModule\!*/i"
-mitmproxy -s mitm.py --listen-host 0.0.0.0 -p 27081 --mode upstream:http://127.0.0.1:27080 -k
-mitmproxy -s mitm_http.py --listen-host 0.0.0.0 -p 8082 --mode upstream:http://192.168.43.246:8081 -k
-python burpTracer.py -s hook.js -r 192.168.43.230:3333 -n 金银钱包
-python burpTracer.py -s hook.js -r 192.168.43.230:3333 -n 金银钱包 --rpc encrypt_rpc.js -a proxy.js
-frida -H 127.0.0.1:3333 -n 金银钱包 -l encrypt.js
-python client.py encrypt_backend.js
-python server.py encrypt_rpc.js
-frida -f com.rmjinhua -H 192.168.43.230:3333

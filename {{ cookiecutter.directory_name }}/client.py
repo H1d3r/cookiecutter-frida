@@ -46,7 +46,10 @@ def frida_process_message(message, data):
             )
 
 
-proxy = {"https": "127.0.0.1:8082", "http": "127.0.0.1:8082"}
+proxy = {
+    "https": "127.0.0.1:{{ cookiecutter.mitm_http_port }}",
+    "http": "127.0.0.1:{{ cookiecutter.mitm_http_port }}",
+}
 
 
 def request(url, body, session):
@@ -262,7 +265,9 @@ def sms_tamper():
     phone_list = list()
 
     async def main():
-        client = httpx.AsyncClient(proxies="http://127.0.0.1:8082", verify=False)
+        client = httpx.AsyncClient(
+            proxies="http://127.0.0.1:{{ cookiecutter.mitm_http_port }}", verify=False
+        )
         tasks = list()
 
         for i in range(15):
@@ -377,11 +382,13 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python client.py <script_name>")
         exit(0)
-    process_name = "金银钱包"
+    process_name = "{{ cookiecutter.app_name }}"
     script_name = sys.argv[1]
 
     device = frida.get_remote_device()
-    device = frida.get_device_manager().add_remote_device("192.168.43.230:3333")
+    device = frida.get_device_manager().add_remote_device(
+        "{{ cookiecutter.frida_ip }}:{{ cookiecutter.frida_port }}"
+    )
     process = device.attach(process_name)
 
     with open(script_name, encoding="utf-8", errors="ignore") as f:

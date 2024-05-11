@@ -1,3 +1,7 @@
+"""
+Handle http traffic
+"""
+
 import random
 import time
 from typing import Callable, Protocol
@@ -25,14 +29,6 @@ class Interceptor:
     def request(self, flow: mitmproxy.http.HTTPFlow):
         if "Content-Type" not in flow.request.headers:
             flow.request.headers["Content-Type"] = "application/json"
-        try:
-            obj = json.loads(flow.request.text)
-            obj["head"]["H_TIME"] = str(int(time.time() * 1000))[:-3] + str(
-                random.randint(0, 999)
-            ).rjust(3, "0")
-            flow.request.text = json.dumps(obj)
-        except:
-            pass
 
     def response(self, flow: mitmproxy.http.HTTPFlow):
         pass

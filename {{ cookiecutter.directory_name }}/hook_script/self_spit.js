@@ -1,3 +1,7 @@
+/**
+ * Encryption algorithm self-spit
+ */
+
 var N_ENCRYPT_MODE = 1
 var N_DECRYPT_MODE = 2
 

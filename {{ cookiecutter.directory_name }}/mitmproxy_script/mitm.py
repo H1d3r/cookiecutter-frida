@@ -1,3 +1,7 @@
+"""
+Handle frida rpc traffic
+"""
+
 from typing import Callable, Protocol
 import mitmproxy
 import mitmproxy.http
@@ -108,64 +112,10 @@ filterChain.add(
     [
         # RequestFilter(
         #     [
-        #         "acctTransQuery.do",
-        #     ],
-        #     lambda obj: modify_dict(obj, "acctno", "6224490110801981"),
-        # ),
-        # RequestFilter(
-        #     [
-        #         "acctTransQuery.do",
-        #     ],
-        #     lambda obj: modify_dict(obj, "CLIENT_NO", "db55df74a18ee537"),
-        # ),
-        # RequestFilter(
-        #     [
-        #         "acctTransQuery.do",
-        #     ],
-        #     lambda obj: modify_dict(obj, "stdate", "20200407"),
-        # ),
-        # RequestFilter(
-        #     [
-        #         "sheBaoSign.do",
-        #     ],
-        #     lambda obj: modify_dict(obj, "CLIENT_NO", "db55df74a18ee537"),
-        # ),
-        # RequestFilter(
-        #     [
-        #         "sheBaoSign.do",
-        #     ],
-        #     lambda obj: modify_dict(obj, "aab301", "330701"),
-        # ),
-        # RequestFilter(
-        #     [
-        #         "*",
-        #     ],
-        #     lambda obj: modify_dict(obj, "CLIENT_NO", "db55df74a18ee537"),
-        # ),
-        RequestFilter(
-            [
-                "*",
-            ],
-            lambda obj: modify_dict(obj, "USA_BLE_BAL", "9999999.0"),
-        ),
-        RequestFilter(
-            [
-                "qryDepositAcctList.do",
-            ],
-            lambda obj: modify_dict(obj, "NoNeedCard", "Y"),
-        ),
-        # RequestFilter(
-        #     [
-        #         "*",
-        #     ],
-        #     lambda obj: modify_dict(obj, "TRANS_REMARK", "https://www.nsfocus.com"),
-        # ),
-        # RequestFilter(
-        #     [
         #         "*",
         #     ],
         #     lambda obj: modify_dict(
-        #         obj, "smsContent", "SMS Content Hacked: https://www.nsfocus.com"
+        #         obj, "key", "new value"
         #     ),
         # ),
     ]
@@ -174,7 +124,7 @@ filterChain.add(
 resFilterChain = FilterChain()
 resFilterChain.add(
     [
-        ResponseFilter(lambda obj: modify_dict(obj, "USA_BLE_BAL", "9999999.0")),
+        # ResponseFilter(lambda obj: modify_dict(obj, "balance", "9999999.0")),
     ]
 )
 

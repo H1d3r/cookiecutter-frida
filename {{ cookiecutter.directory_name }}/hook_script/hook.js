@@ -1,12 +1,6 @@
-// setTimeout(function () {
-//     Java.perform(function () {
-//         var proxyUtil = Java.use("com.tzb.mobilehub.launcher.utils.ProxyUtils")
-//         proxyUtil.isWifiProxy.implementation = function (ctx) {
-//             console.log("intercept")
-//             return false;
-//         }
-//     })
-// }, 2000)
+/**
+ * Interact with burpTracer.py. Hook request/response content before encryption and send with frida rpc.  
+ */
 var strClz = Java.use("java.lang.String")
 
 function hasOwnProperty(obj, name) {
@@ -105,56 +99,6 @@ function getStack() {
     var Log = Java.use('android.util.Log');
     var stackinfo = Log.getStackTraceString(Exception.$new());
     return stackinfo
-}
-function okhttpproxy() {
-    Java.perform(function () {
-        var proxy = Java.use("java.net.Proxy")
-        var proxyType = Java.use("java.net.Proxy$Type")
-        var inet = Java.use("java.net.InetSocketAddress")
-        var ins = proxy.$new(proxyType.valueOf("HTTP"), inet.$new("192.168.43.247", 18080))
-        var okhttpClient = Java.use("okhttp3.OkHttpClient")
-        okhttpClient.proxy.implementation = function () {
-            console.log("okhttp proxy intercept")
-            return ins;
-        }
-
-        var builder = Java.use("okhttp3.OkHttpClient$Builder")
-        builder.proxy.implementation = function (p) {
-            console.log("okhttp builder hook")
-            var a = Java.cast(ins, proxy)
-            return this.proxy(a)
-        }
-
-    })
-}
-function okhttpClient() {
-    Java.perform(function () {
-        var sClz = Java.use('java.lang.String');
-        var clz = Java.use("okhttp3.OkHttpClient")
-        clz.protocols.implementation = function () {
-            var ret = this.protocols()
-            console.log(`protocols: ${ret['getClass']()}`)
-            return ret;
-        }
-    })
-}
-function connSpec() {
-    Java.perform(function () {
-        var clz = Java.use("okhttp3.ConnectionSpec")
-        clz.tlsVersions.implementation = function () {
-            var ret = this.tlsVersions()
-            var len = ret.size()
-            for (var i = 0; i < len; i++) {
-                console.log(`version:${ret.get(i)}`)
-            }
-            return ret
-        }
-        clz.isCompatible.implementation = function (socket) {
-            var ret = this.isCompatible(socket)
-            console.log(`isCompatible: ${ret}`)
-            return ret
-        }
-    })
 }
 function decodeUTF8(uint8Array) {
     let result = '';
@@ -272,44 +216,27 @@ function sendHexToBurp(res) {
     op.wait();
     return data
 }
-function reqRes() {
+function hookRequestResponse() {
     Java.perform(function () {
         try {
-            var currentPath = "unknown"
-            var client = Java.use("com.rmjinhua.manager.SecurityManager")
-            // conflict with encrypt_rpc.js
-            // client.doPost.implementation = function (url, body, s1, class0) {
-            //     // var jsonStr = jsonClz.$new().toJson(body)
-            //     // console.log(`request: url=${url}, body=${jsonStr}, s1=${s1}, class=${class0}, context=${this.mContext.value}`)
-            //     currentPath = url
-            //     return this.doPost(url, body, s1, class0)
+            //hook request 
+            // var encryptClz = Java.use("cn.xxxx")
+            // encryptClz.EncryptLite.implementation = function (s) {
+            //     var data = sendToBurpReq(s, currentPath)
+            //     var res = this.EncryptLite(data)
+
+            //     console.log(`\nencrypt: ${s}\n=> ${data}`)
+            //     return res
             // }
-            var requestBuilder = Java.use("com.rmjinhua.b.a")
-            requestBuilder.a.implementation = function (ctx, path, enc_body, txnCode) {
-                currentPath = path
-                return this.a(ctx, path, enc_body, txnCode)
-            }
 
+            //hook response
+            // encryptClz.DecryptLite.implementation = function (s) {
+            //     var res = this.DecryptLite(s)
+            //     var data = sendToBurpRes(res)
 
-            //request
-            var jsonClz = Java.use("com.google.gson.Gson")
-            var encryptClz = Java.use("cn.microdone.txcrypto.txcrypto")
-            encryptClz.EncryptLite.implementation = function (s) {
-                // var jsonObj = JSON.parse(s)
-                var data = sendToBurpReq(s, currentPath)
-                var res = this.EncryptLite(data)
-
-                console.log(`\nencrypt: ${s}\n=> ${data}`)
-                return res
-            }
-            //response
-            encryptClz.DecryptLite.implementation = function (s) {
-                var res = this.DecryptLite(s)
-                var data = sendToBurpRes(res)
-
-                console.log(`\ndecrypt: ${res}\n => ${data}`)
-                return data
-            }
+            //     console.log(`\ndecrypt: ${res}\n => ${data}`)
+            //     return data
+            // }
 
         } catch (error) {
             console.error(error)
@@ -319,44 +246,15 @@ function reqRes() {
     )
 
 }
+// for debug
 function trace() {
     Java.perform(function () {
-        var jsonClz = Java.use("com.google.gson.Gson")
-        var encryptClz = Java.use("cn.microdone.txcrypto.txcrypto")
-        encryptClz.EncryptLite.implementation = function (s) {
-            var res = this.EncryptLite(s)
-            console.log(`encrypt: ${s}\n=>${res}`)
-            return res
-        }
-        encryptClz.DecryptLite.implementation = function (s) {
-            var res = this.DecryptLite(s)
-            console.log(`decrypt: ${s}\n => ${res}`)
-            return res
-        }
-        var client = Java.use("com.rmjinhua.manager.SecurityManager")
-        var globalCtx = null
-        client.doPost.implementation = function (url, body, s1, class0) {
-            var jsonStr = jsonClz.$new().toJson(body)
-            console.log(`request: url=${url}, body=${jsonStr}, s1=${s1}, class=${class0}, context=${this.mContext.value}`)
-            globalCtx = this.mContext.value
-            return this.doPost(url, body, s1, class0)
-        }
-
-
-
-
     })
 
 
 }
 
 
-reqRes()
+hookRequestResponse()
 // trace()
-// encrypt_init()
-// encrypt()
-// connSpec()
-// okhttpClient()
-// okhttpproxy()
-// trace_response()
 

@@ -1,0 +1,11 @@
+{
+    "directory_name": "sample_project",
+    "package_name": "com.certain.package",
+    "app_name": "AppName",
+    "local_ip": "192.168.43.246",
+    "mitm_http_port": "8082",
+    "mitm_frida_port": "27081",
+    "frida_ip": "127.0.0.1",
+    "frida_port": "3333",
+    "rpc_server_port": "8989"
+}

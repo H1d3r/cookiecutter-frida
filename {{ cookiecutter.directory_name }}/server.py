@@ -30,9 +30,11 @@ def send_request():
 
 
 def inject_and_run(script_name):
-    process_name = "金银钱包"
+    process_name = "{{ cookiecutter.app_name }}"
     device = frida.get_remote_device()
-    device = frida.get_device_manager().add_remote_device("192.168.43.230:3333")
+    device = frida.get_device_manager().add_remote_device(
+        "{{ cookiecutter.frida_ip }}:{{ cookiecutter.frida_port }}"
+    )
     process = device.attach(process_name)
 
     with open(script_name, encoding="utf-8", errors="ignore") as f:
@@ -59,7 +61,7 @@ def run(script):
     if rpc_request is None:
         print(f"Fail to load rpc request function")
     print("Server start...")
-    app.run(port=8989)
+    app.run(port=int("{{ cookiecutter.rpc_server_port }}"))
 
 
 if __name__ == "__main__":
