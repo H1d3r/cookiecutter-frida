@@ -7,7 +7,7 @@ function start() {
         let addressClz = Java.use("java.net.InetSocketAddress")
         proxyClz.address.implementation = function () {
             var res = this.address()
-            let myproxy = addressClz.$new("{{ cookiecutter.mitm_http_port }}", {{ cookiecutter.mitm_http_port }}) // change here
+            let myproxy = addressClz.$new("{{ cookiecutter.local_ip }}", {{ cookiecutter.mitm_http_port }}) // change here
 
     console.log(`Proxy: ${res} -> ${myproxy}`)
     return myproxy

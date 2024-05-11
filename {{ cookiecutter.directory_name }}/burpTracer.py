@@ -8,7 +8,7 @@ import os
 import socket
 import argparse
 
-from request import sendRequest, sendSms
+# from request import sendRequest
 from utils.log import *
 import binascii
 import base64
@@ -188,19 +188,19 @@ def main():
                                 e
                             )
                         )
-                elif body["from"] == "/sendRequest":
-                    logger.info(f"sendRequest")
-                    req_data = body["req_data"]
-                    sign = body["sign"]
-                    method = body["method"]
-                    try:
-                        logger.info("[+] sendRequest")
-                        res = sendRequest(req_data, sign, method)
-                        logger.info("sssssss")
-                        script.post({"type": "input", "payload": res})
-                    except requests.exceptions.RequestException as e:
-                        logger.error("[x_x] SendRequest Failed - {0}".format(e))
-                        script.post({"type": "input", "payload": f"{e}"})
+                # elif body["from"] == "/sendRequest":
+                #     logger.info(f"sendRequest")
+                #     req_data = body["req_data"]
+                #     sign = body["sign"]
+                #     method = body["method"]
+                #     try:
+                #         logger.info("[+] sendRequest")
+                #         res = sendRequest(req_data, sign, method)
+                #         logger.info("sssssss")
+                #         script.post({"type": "input", "payload": res})
+                #     except requests.exceptions.RequestException as e:
+                #         logger.error("[x_x] SendRequest Failed - {0}".format(e))
+                #         script.post({"type": "input", "payload": f"{e}"})
                 elif body["from"] == "/response":
                     logger.info(body)
                     res_base = body["payload"]

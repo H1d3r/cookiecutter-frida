@@ -6,11 +6,32 @@ from flask import Flask, request, jsonify
 import flask
 import frida
 import json
-from client import frida_process_message, logger
+from utils.log import logger
+import base64
 
 app = Flask(__name__)
 
 rpc_request = None
+
+
+def frida_process_message(message, data):
+    if message["type"] == "input":
+        pass
+    elif message["type"] == "send":
+        body = message["payload"]
+        if body["from"] == "/request":
+            req_data = body["req_data"]
+            sign = body["sign"]
+            method = body["method"]
+            logger.info(
+                f"\nRequest Encryption\nreq_data:{req_data}\nsign:{sign}\nmethod:{method}"
+            )
+            # res = sendRequest(req_data, sign, method)
+        if body["from"] == "/response":
+            data = body["payload"]
+            logger.info(
+                f"\nResponse Decryption:\n{base64.b64decode(data).decode('utf8')}"
+            )
 
 
 @app.route("/request", methods=["FRIDA"])

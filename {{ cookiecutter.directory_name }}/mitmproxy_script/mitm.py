@@ -7,7 +7,8 @@ import mitmproxy
 import mitmproxy.http
 import mitmproxy.ctx as ctx
 import json
-from utils.mysm4 import sm4_decrypt_ecb, sm4_encrypt_ecb
+
+# from utils.mysm4 import sm4_decrypt_ecb, sm4_encrypt_ecb
 import clipboard
 
 sqlFuzz = "'\"#()--"
