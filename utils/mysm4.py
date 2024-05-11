@@ -1,0 +1,67 @@
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
+import binascii
+import base64
+import clipboard
+from sm4 import SM4Key
+
+
+def sm4_encrypt_ecb(msgString: str, key: str):
+    cipher = Cipher(
+        algorithms.SM4(key.encode("utf8")), modes.ECB(), backend=default_backend
+    )
+    encryptor = cipher.encryptor()
+    padder = padding.PKCS7(algorithms.SM4.block_size).padder()
+    b = msgString.encode("utf8")
+    padded_data = padder.update(b) + padder.finalize()
+    enc = encryptor.update(padded_data) + encryptor.finalize()
+    return binascii.hexlify(enc)
+
+
+def sm4_decrypt_ecb(msgString: str, key: str):
+    cipher = Cipher(
+        algorithms.SM4(key.encode("utf8")), modes.ECB(), backend=default_backend
+    )
+    decryptor = cipher.decryptor()
+    enc_b = binascii.a2b_hex(msgString)
+    dec = decryptor.update(enc_b) + decryptor.finalize()
+    # unpadder = padding.PKCS7(algorithms.SM4.block_size).unpadder()
+    # dec = unpadder.update(dec) + unpadder.finalize()
+    try:
+        return dec.decode("utf8")
+    except:
+        return dec.decode("latin8")
+
+
+def sm4_decrypt_ecb2(msgString: str, key: str):
+    enc_b = binascii.a2b_hex(msgString)
+    cipher = SM4Key(key.encode("utf8"))
+    dec = cipher.decrypt(enc_b)
+    return dec.decode("utf8")
+
+
+def test():
+    enc = "a1323f01ba870491b79ff2bb6a15ca6da77c1e2fe1a5cfcd329d7a825eabd640ee4792fb6bca6ab42671ce3525a55d3f2eeb765922c8b61b8708e9047b64f68e099b4ce8202d156092458c1e453d151ddb6f9245340803378d0e07ac6eb89b6b86329d5a0d985f032f33bf56a759e348af28176ead9911448f400c60e93fae51c83d7b772d6d0f0b9518ec19ef82b3e1947985d9717073456da7add1f5a47f2278b177a087ba7536692c593b8d9e120c642b849f5ccd794e591d8a95fe31f20341effd67337e6300584c06dbe1a35a226205f829c8c0575e9586c033d26cfc61efab75cb5455d8c4e78320952c0dc5cfefab75cb5455d8c4e78320952c0dc5cfd6fc58dbb4e1dbe7233de5560f57e942d9d0003f4ea3e7881a478990e1edb5bf65a6afb6066ff906e7001a6e71f0d72a4fc9145c88e0f6afb58459b2653f404caad9709f1fbba38b6a7957e5850c93d5f1516c933a698991171f1f02671cac5b6a10b455fe8946c3156bc1af031e5e92a4f861a030f047380dd16d9b30f393b86cb03219ef3653d56408b3d0470dac75efab75cb5455d8c4e78320952c0dc5cfefab75cb5455d8c4e78320952c0dc5cfefab75cb5455d8c4e78320952c0dc5cfdd5dbcc1c5f5c97b5bc6adbf647826bbc9e09723d202e645cfa23a5c06e995720074bb0f47dc20941ca4b84b574c0fd7dbe287adfd7ddcc582f5ee1e77d7f42e157787ae99b6e782db359dc9356d75daa52ccfeda3c08540b7c954103fa08e56f04551d170c8db2ab79d2f6c09bbd57092b7c36f39fdf5c40fe1b7f4f1ee51ce3fca9fdd2175fa4a51cfd184398a77cfba2435eddf4087716a3bee149943f9555c763e977ee3115d4eeb20cdd08d52c4266eff59d212f805caa2e7c8158ebe00739acea3ce9cc83f198c1d575671b9c7fab3c2beb286866cc3e2a1bbba44ded77f54d8354560fde57d247e79ffff70ffefab75cb5455d8c4e78320952c0dc5cfa6a260bc4504ab828f1f45c8400281b32774d43799b8d4ac305fbe687faacf0ecabb4dcf4ae894294405925a73a917e038d8fad336c2e4c64b3a92c3384735cc183836f7e3b64c92f72f4a5111c55c7ebc2035cc95a9d495a88badb2b21a99bc9c173afcf1c0f264f0ce03caec231516080e9289e3d34f086c230bf773a78d99b7336b2a2e45904bba232a83c9714102738eacff17d010967245b10904dc82e73107bb7b92da86b4c3c91f99c45cd911c7fe04f7b5ba9598f6454e3ee457454f7e1176dfe0ef05fe83f2bc09614c719dab58447ff0fab35d5c463286fc8fcd76c6df5558a2edb6c8b331cfce7224182c300b5f062683a39163d2c65c1726436f2178a4935deb832205decbe755424c8b3d10657b3c52f3c8f9cea22e666a4643efab75cb5455d8c4e78320952c0dc5cfefab75cb5455d8c4e78320952c0dc5cfefab75cb5455d8c4e78320952c0dc5cfefab75cb5455d8c4e78320952c0dc5cfd518abfd4e98825f623f68c813f7c7ca4d379879c5c493b928b0fd779556b2093e61124439b632f27ae92200b60a4be4053c6b5c217d73029e451a4198315d3beb2c091a8760bf94529defa9cc6284e320820d2121836da39fdf3d7640d60a1060a17107d925c29912dd2208e1b3cdbc75fa13185e5b3382f4b1433dca2395b514e399dfc03623352b5d0a12f7507c140f3d77751e83e63be6f93fe92e37932852d233f52e09ba9325cf85db0f05d4f0996002fd267f8ef8ab52f4f6420c6161d24cb7dfb6837f03ef52290cbfa133f5a60685bb087d092d89f19381ed4d21c78f98973d09b3ab38bc99969142329a59efab75cb5455d8c4e78320952c0dc5cfefab75cb5455d8c4e78320952c0dc5cfefab75cb5455d8c4e78320952c0dc5cf7502d202529ebe263c5e8ae87b07f8d73fc6174da09258a6ad0be891a1d8eb10d9f66be3f89b4fbe3f0659bbc57761873f45f08f77e9ec2a83882be93feb3f3ae46ea884869960b31e1bda4eedd7ab419beebbe86cdadee29ee4efc416154be38f03a25c04dce616fcda1cf3f644c5fce996b5ba3895fe525cd10f6bba6308c378b177a087ba7536692c593b8d9e120ceb9873d8d81e50034b85cbf9dd43dd50d9d0003f4ea3e7881a478990e1edb5bf1371ad784195cb3b459ac7669c259bd09793e795a5a4761ac0c21d1ab76a0fd6b623e00174cc753071efc62f15855673a67235dba2ee42fa7cdf7ee7c1bba6bb7cf0caadd8bf56129e7daecfbc5d134ac6149f8161397ef2a375ddf4661afe47cc382a23a79b95ac86e6326374db85a19cc2323b9c35ea38315323b1e5e97ced070951cba94301906743d207b1b5fe19042c71c7c1e99d49caee4c36801084cd89c5815a83d916b996edab0203b7fa421167c4a2d23a0c590cbd3816b576a3f68803805a27d64ad167bb0ad6860bb1aa5858574dcbb6812347bd98557dcf1d8bd1641f6ac7043fa20eaf65b8cc2d496cac1530b91dc8d8f7592c4b60252c5f9b4d7c47e4559be87b1036375c550b236da2ab6857db3a6c4dfe5c07662cbfc5ea70aadbfdcbfea20a84d56c034bb60d8e36dbb8b355e60aac182911fe1145f54c5858574dcbb6812347bd98557dcf1d8b8ecebb2b144f3f80fb08c6c2139c0a7d4c8ede8bab71ae2921072cde8b57ec6fe9c658aac36ff9123a4e5e0b6bb820536e6fa779270b89dec3dbd1d9eb4503e496ae0f3d0912e25fec7ade6bccf6fde974767d0fded90c88ed0b4227297e91f97b955fdf056348eca0764da939cd4fa3376e878d423aa5a5d3dfa35aa68dac75c46819e7d1232de39e0e7aff74541db4dee78735169e2bcdf6cc5fa39be42821b925f0b3761f4534cf55a6af7572563996cccecb229f8b7a80e9af00fa056808c98f2ab26021cfd88260886c6e318d54abf669345d4f4761c2101d8f5ef286f1949729de2f080b5f937cc2b11056c3c1619bb9654b89eb815141c7c02332e89a75c46cfeb48d82e3a4ffa3667710376219c7035c5744bfe8f6e4f061dbaf34a6d18d82505a882b20c4f828d84d5949bccc591fd77ae8f9e226250d85c4fdd63a721e3e4e0df4af6689ad0b69a7dd7cf4b5a008ecf783874dba920be41ea585d6fbd52e887b5c2dbc7911075c33c45ff1"
+    dec = '{"serialNo":"05524030416062970386","total":1,"success":true,"result":{"respMsg":"刷新成功"}}'
+    key = "0000000000000000"
+    # print(sm4_encrypt_ecb(dec,key))
+    dec_ = sm4_decrypt_ecb2(enc, key)
+    print(dec_)
+    assert dec_ == dec
+
+    # print(sm4_decrypt_ecb(enc,key)==dec)
+
+
+if __name__ == "__main__":
+    enc = "10E45E42000140E841847FFAD94C1EF020BCDB0F76D2711C23451FA1C23B67245D87439DDD74C9B2429419FCDF987E7571972C6CD63A01E765ED7CF6FA8689BB54E12E52BD06B59AAD216D41FC5F2BC2DD62BDE2FCCC68330C631046956D5D43F9D2F26C0FC1090B9A8B41E6AE13B653D4DCE128ED95A381A9DF97C224F23E09D1F57F3CEA09D0F48A075CE0BF08FB7F5DE6BF438591F8185D6198F1BE67B5D915D9604D739C0BED"
+    # 320
+    dec = sm4_decrypt_ecb(enc[:-16], "RIvY0gFLuMLljOvh")
+    print(dec)
+    # import json
+    # obj = json.loads(dec)
+    # obj['result']['list2'][0]['UsableBalance'] ="9999999999999"
+    # res = sm4_encrypt_ecb(json.dumps(obj),"0000000000000000")
+    # print(res)
+    # clipboard.copy(res.decode('utf8'))
+    # test()
