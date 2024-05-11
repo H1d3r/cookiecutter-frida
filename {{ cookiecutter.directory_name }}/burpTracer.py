@@ -123,7 +123,7 @@ def handle_del_log():
 
 
 def start_rpc(script):
-    from server import run
+    from rpc_server import run
 
     threading.Thread(target=run, args=(script,), daemon=True).start()
 
@@ -206,14 +206,14 @@ def main():
                     res_base = body["payload"]
                     res = base64.b64decode(res_base).decode("utf8")
                     logger.info(f"Response: {res}")
-                elif body["from"] == "/sendSms":
-                    payload = body["payload"]
-                    phone = body["phone"]
-                    try:
-                        logger.info("[+] sendSms")
-                        sendSms(phone, payload)
-                    except requests.exceptions.RequestException as e:
-                        logger.error("[x_x] SendSms Failed - {0}".format(e))
+                # elif body["from"] == "/sendSms":
+                #     payload = body["payload"]
+                #     phone = body["phone"]
+                #     try:
+                #         logger.info("[+] sendSms")
+                #         sendSms(phone, payload)
+                #     except requests.exceptions.RequestException as e:
+                #         logger.error("[x_x] SendSms Failed - {0}".format(e))
                 elif body["from"] == "/httpHex":
                     try:
                         # 把数据发给 本地burp 监听的 26080端口
