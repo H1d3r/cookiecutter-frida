@@ -1,5 +1,5 @@
 # Overview
-This is a cookiecutter template for bypassing the traffic encryption in Android app. 
+This is a cookiecutter template for bypassing the traffic encryption in Android app. Please Read [this article](https://www.wolai.com/secnote/4Bq9JWA49txJA8gYBa55SR) first.
 
 # Launch
 ## Start echoServer
