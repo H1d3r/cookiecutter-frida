@@ -98,13 +98,40 @@ class ResponseFilter(Filter):
 
 
 def modify_dict(obj: dict, key: str, value, add=False) -> object:
-    if not add and key not in obj:
-        return obj
+    """
+    Example: modify_dict(
+                obj, "data:bindAccInfoList:0:availBalance", "9999999.0"
+            )
+
+    """
+    # log(f"modify_dict:{obj['currentBalance']}, {obj}")
+    keys = key.split(":")
+    if len(keys) <= 1:
+        try:
+            obj[key] = value
+            return obj
+        except:
+            return obj
+    cur_obj = obj
+    for key in keys[:-1]:
+        try:
+            cur_obj = cur_obj[key if not key.isdigit() else int(key)]
+        except KeyError:
+            return obj
+    key = keys[-1]
     try:
-        obj[key] = value
-        return obj
-    except KeyError:
-        return obj
+        if isinstance(obj, dict):
+            if not add and not key in cur_obj.keys():
+                pass
+            else:
+                cur_obj[key] = value
+        else:
+            key = int(key)
+            cur_obj[key] = value
+    except Exception as e:
+        raise e
+
+    return obj
 
 
 filterChain = FilterChain()
@@ -125,7 +152,11 @@ filterChain.add(
 resFilterChain = FilterChain()
 resFilterChain.add(
     [
-        # ResponseFilter(lambda obj: modify_dict(obj, "balance", "9999999.0")),
+        # ResponseFilter(
+        #     lambda obj: modify_dict(
+        #         obj, "data:bindAccInfoList:0:availBalance", "9999999.0"
+        #     )
+        # ),
     ]
 )
 
