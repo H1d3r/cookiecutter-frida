@@ -34,8 +34,11 @@ mitmproxy -s mitmproxy_script/mitm_http.py --listen-host 0.0.0.0 -p {{ cookiecut
 ```
 
 ## Configure Burp
-- Start a burp listener on local port 26080 and redirect to port 27081.
-- (Optional) Start a burp listener on local port 8081
+- Start a burp listener on local port 26080 and redirect to port {{ cookiecutter.mitm_frida_port }}.
+- (Optional) Start a burp listener on local port {{ cookiecutter.mitm_http_port }}.
+
+## Spawn target App
+Run `hook_script/spawn.sh` or start the app manually.
 
 ## Start burpTracer, inject js
 ```bash
